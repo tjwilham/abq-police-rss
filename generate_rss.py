@@ -3,6 +3,8 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from email.utils import format_datetime
 
+print("🔔 Running the up-to-date version of generate_rss.py")
+
 url = "https://data.cabq.gov/publicsafety/policeincidents/policeincidentsJSON_ALL"
 items = []
 
