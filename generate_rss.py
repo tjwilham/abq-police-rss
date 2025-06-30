@@ -23,7 +23,7 @@ try:
             items = resp.json()
             print(f"✅ Parsed {len(items)} items.")
         except Exception as e:
-            print("❌ Failed to parse JSON:", e)
+            print("❌ JSON parse failed:", e)
     else:
         print("❌ Invalid response. Skipping JSON parse.")
 
