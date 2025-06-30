@@ -7,14 +7,18 @@ url = "https://data.cabq.gov/publicsafety/policeincidents/policeincidentsJSON_AL
 items = []
 
 try:
+    print("🔄 Fetching JSON from:", url)
     resp = requests.get(url, timeout=15)
-    if resp.status_code == 200 and resp.text.strip():
+    content_type = resp.headers.get('Content-Type', '')
+    
+    if resp.status_code == 200 and 'application/json' in content_type and resp.text.strip():
         try:
             items = resp.json()
+            print(f"✅ Parsed {len(items)} items")
         except Exception as e:
-            print("⚠️ Could not parse JSON:", e)
+            print("⚠️ JSON parse failed:", e)
     else:
-        print(f"⚠️ Bad response: {resp.status_code}, empty or invalid content.")
+        print(f"⚠️ Invalid response: status {resp.status_code}, content-type: {content_type}")
 except Exception as e:
     print("⚠️ Request failed:", e)
 
