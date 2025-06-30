@@ -6,23 +6,31 @@ from email.utils import format_datetime
 url = "https://data.cabq.gov/publicsafety/policeincidents/policeincidentsJSON_ALL"
 items = []
 
+print(f"🔄 Fetching from {url}...")
+
 try:
-    print("🔄 Fetching JSON from:", url)
     resp = requests.get(url, timeout=15)
+    status = resp.status_code
+    content = resp.text.strip()
     content_type = resp.headers.get('Content-Type', '')
-    
-    if resp.status_code == 200 and 'application/json' in content_type and resp.text.strip():
+
+    print(f"➡️ HTTP Status: {status}")
+    print(f"➡️ Content-Type: {content_type}")
+    print(f"➡️ Response length: {len(content)}")
+
+    if status == 200 and content and 'json' in content_type.lower():
         try:
             items = resp.json()
-            print(f"✅ Parsed {len(items)} items")
+            print(f"✅ Parsed {len(items)} items.")
         except Exception as e:
-            print("⚠️ JSON parse failed:", e)
+            print("❌ Failed to parse JSON:", e)
     else:
-        print(f"⚠️ Invalid response: status {resp.status_code}, content-type: {content_type}")
-except Exception as e:
-    print("⚠️ Request failed:", e)
+        print("❌ Invalid response. Skipping JSON parse.")
 
-# Build RSS feed
+except Exception as e:
+    print("❌ Request failed:", e)
+
+# Create RSS feed
 rss = ET.Element("rss", version="2.0")
 channel = ET.SubElement(rss, "channel")
 ET.SubElement(channel, "title").text = "Albuquerque Police Incidents"
@@ -46,4 +54,4 @@ for entry in items[:50]:
     ET.SubElement(item, "link").text = url
 
 ET.ElementTree(rss).write("police_incidents.rss", encoding="utf-8", xml_declaration=True)
-print("✅ RSS file generated.")
+print("✅ RSS file written: police_incidents.rss")
