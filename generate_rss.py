@@ -4,19 +4,21 @@ from datetime import datetime
 from email.utils import format_datetime
 
 url = "https://data.cabq.gov/publicsafety/policeincidents/policeincidentsJSON_ALL"
+items = []
 
 try:
-    resp = requests.get(url, timeout=10)
-    resp.raise_for_status()
-    try:
-        items = resp.json()
-    except ValueError:
-        raise Exception("Response is not valid JSON. Content-type may be wrong or the server returned plain text.")
+    resp = requests.get(url, timeout=15)
+    if resp.status_code == 200 and resp.text.strip():
+        try:
+            items = resp.json()
+        except Exception as e:
+            print("⚠️ Could not parse JSON:", e)
+    else:
+        print(f"⚠️ Bad response: {resp.status_code}, empty or invalid content.")
 except Exception as e:
-    print("Error fetching or decoding JSON:", e)
-    items = []
+    print("⚠️ Request failed:", e)
 
-# Build RSS
+# Build RSS feed
 rss = ET.Element("rss", version="2.0")
 channel = ET.SubElement(rss, "channel")
 ET.SubElement(channel, "title").text = "Albuquerque Police Incidents"
@@ -40,3 +42,4 @@ for entry in items[:50]:
     ET.SubElement(item, "link").text = url
 
 ET.ElementTree(rss).write("police_incidents.rss", encoding="utf-8", xml_declaration=True)
+print("✅ RSS file generated.")
